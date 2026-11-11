@@ -1,0 +1,10 @@
+{
+  "pythonPath": "C:\\Users\\jeeva\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "pythonPath": "C:\\Users\\jeeva\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "extraPaths": ["src"]
+    }
+  ]
+}

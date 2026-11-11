@@ -1,0 +1,40 @@
+# Virtual environment & Python caches
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment & local secrets
+.env
+.env.*
+*.log
+
+# IDE / Editor settings
+.vscode/
+.idea/
+
+# Model weights & binaries
+models/**/*.pth
+models/**/*.pt
+models/**/*.bin
+models/**/*.safetensors
+models/**/*.onnx
+
+# Local scratch, temporary outputs & extracted media
+scratch/
+scratch_*.py
+extracted_media/
+verification_result.json
+
+# Academic document helper files
+add_citations.py
+References.bib
+
+# OS artifacts
+.DS_Store
+Thumbs.db

@@ -1,0 +1,47 @@
+# Claim-Centric Multimodal News Verification System
+
+## Dependencies
+# Core ML/NLP Stack
+torch>=2.1.0
+torchvision>=0.16.0
+transformers>=4.35.0
+sentence-transformers>=2.2.0
+spacy>=3.7.0
+nltk>=3.8
+rank-bm25>=0.2.1
+
+# Evidence Retrieval
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+feedparser>=6.0
+wikipedia>=1.4.0
+duckduckgo-search>=8.0.0
+
+# Image Processing
+opencv-python>=4.8.0
+Pillow>=10.0.0
+scikit-image>=0.22.0
+easyocr>=1.7.0
+
+# Vision-Language (uses Hugging Face transformers CLIPModel)
+# CLIP is natively supported via transformers>=4.35.0 (no external git install required)
+
+# Image model hub
+timm>=0.9.0
+
+# Utilities
+pandas>=2.1.0
+numpy>=1.24.0
+tqdm>=4.66.0
+pydantic>=2.4.0
+pyyaml>=6.0
+dateparser>=1.1.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# API & Serving
+fastapi>=0.104.0
+uvicorn>=0.24.0
+python-multipart>=0.0.6
