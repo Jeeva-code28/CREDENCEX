@@ -6,8 +6,7 @@
 # Space/Science, Corporate/Business, Sports, District Administration, etc.
 
 import re
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, TypedDict
 from urllib.parse import urlparse
 
 from src.utils import setup_logger
@@ -141,7 +140,16 @@ DOMAIN_CATEGORY_KEYWORDS = {
 #   3. EXCLUSION:    Presence of words that indicate the OTHER meaning
 # -------------------------------------------------------------------------
 
-AMBIGUOUS_TERMS = {
+class AmbiguousTermConfig(TypedDict):
+    entity_meaning: str
+    common_meanings: List[str]
+    case_forms: Optional[List[str]]
+    collocates: Set[str]
+    min_collocates: int
+    exclusion_words: Set[str]
+
+
+AMBIGUOUS_TERMS: Dict[str, AmbiguousTermConfig] = {
     # ---- Health / Medical ----
     'who': {
         'entity_meaning': 'World Health Organization',
@@ -289,26 +297,27 @@ def _disambiguate_keyword(keyword: str, original_text: str) -> bool:
         return True  # Not ambiguous → always genuine
 
     config = AMBIGUOUS_TERMS[keyword]
-    lower_text = original_text.lower()
+    safe_text = original_text or ""
+    lower_text = safe_text.lower()
 
     # Pre-compute: check which case forms (if any) appear in the original text
-    case_forms = config.get('case_forms')
-    matched_case_form = None
+    case_forms: Optional[List[str]] = config.get('case_forms')
+    matched_case_form: Optional[str] = None
     if case_forms:
         for cf in case_forms:
-            if re.search(r'\b' + re.escape(cf) + r'\b', original_text):
+            if re.search(r'\b' + re.escape(cf) + r'\b', safe_text):
                 matched_case_form = cf
                 break
 
     # Pre-compute: count domain collocates present
-    collocates = config.get('collocates', set())
-    min_collocates = config.get('min_collocates', 1)
+    collocates: Set[str] = config.get('collocates', set())
+    min_collocates: int = config.get('min_collocates', 1)
     collocate_count = sum(1 for c in collocates if c in lower_text) if collocates else 0
     has_collocates = collocate_count >= min_collocates if min_collocates > 0 else True
 
     # ── Signal 1: Exclusion words (strongest negative signal) ──
     # If exclusion words are present, the keyword is very likely used in its common meaning
-    exclusion_words = config.get('exclusion_words', set())
+    exclusion_words: Set[str] = config.get('exclusion_words', set())
     exclusion_hit = False
     if exclusion_words:
         for exc in exclusion_words:
@@ -361,7 +370,41 @@ INDIAN_DISTRICTS = [
 # -------------------------------------------------------------------------
 # Backward-Compatible Authority Registry (Sector-specific authority routing)
 # -------------------------------------------------------------------------
-AUTHORITY_REGISTRY = {
+class AuthorityRegistryEntry(TypedDict):
+    name: str
+    role: str
+    category: str
+    keywords: List[str]
+    primary_domains: List[str]
+    official_domains: List[str]
+    official_handles: List[str]
+    trusted_media: List[str]
+    factcheck_domains: List[str]
+
+
+class SectorEntityEntry(TypedDict):
+    name: str
+    role: str
+    category: str
+    official_handles: List[str]
+    official_domains: List[str]
+    associated_figures: List[str]
+
+
+class CinemaFigureEntry(TypedDict):
+    name: str
+    handle: str
+    role: str
+
+
+class MovieOriginEntry(TypedDict):
+    production_house: str
+    producer: str
+    lead_actor: str
+    associated_handles: List[str]
+
+
+AUTHORITY_REGISTRY: Dict[str, AuthorityRegistryEntry] = {
     'finance_banking': {
         'name': 'Reserve Bank of India & Financial Regulators',
         'role': 'Central Monetary Authority / Financial Regulator',
@@ -409,7 +452,7 @@ AUTHORITY_REGISTRY = {
 }
 
 # Known Multi-Sector Primary Authorities & Official Channels Registry
-KNOWN_SECTOR_ENTITIES = {
+KNOWN_SECTOR_ENTITIES: Dict[str, SectorEntityEntry] = {
     # Cinema & Entertainment: Production Houses & Creators
     'dream warrior pictures': {
         'name': 'Dream Warrior Pictures',
@@ -673,7 +716,7 @@ KNOWN_SECTOR_ENTITIES = {
 }
 
 # Prominent Cinema Public Figures & Handles Mapping
-CINEMA_FIGURES_HANDLES = {
+CINEMA_FIGURES_HANDLES: Dict[str, CinemaFigureEntry] = {
     'suriya': {'name': 'Suriya Sivakumar', 'handle': '@Suriya_offl', 'role': 'Lead Actor & Producer'},
     'actor suriya': {'name': 'Suriya Sivakumar', 'handle': '@Suriya_offl', 'role': 'Lead Actor & Producer'},
     'vijay': {'name': 'Thalapathy Vijay', 'handle': '@actorvijay', 'role': 'Lead Actor & Leader'},
@@ -694,7 +737,7 @@ CINEMA_FIGURES_HANDLES = {
 }
 
 # Movie Title Knowledge Mapping (For automatic origin linkage)
-MOVIE_ORIGIN_MAP = {
+MOVIE_ORIGIN_MAP: Dict[str, MovieOriginEntry] = {
     'karuppu': {
         'production_house': 'Dream Warrior Pictures',
         'producer': 'SR Prabhu',
@@ -750,22 +793,23 @@ class UniversalOriginResolver:
         """
         Infer the domain category of any news statement across all sectors.
         """
-        lower_t = text.lower()
+        safe_text = text or ""
+        lower_t = safe_text.lower()
         if entities:
-            lower_t += " " + " ".join([e.lower() for e in entities])
+            lower_t += " " + " ".join([e.lower() for e in entities if e])
 
-        category_scores = {}
+        category_scores: Dict[str, int] = {}
         for cat, keywords in DOMAIN_CATEGORY_KEYWORDS.items():
             score = sum(
                 1 for kw in keywords
                 if re.search(r'\b' + re.escape(kw) + r'\b', lower_t)
-                and _disambiguate_keyword(kw, text)
+                and _disambiguate_keyword(kw, safe_text)
             )
             if score > 0:
                 category_scores[cat] = score
 
         if category_scores:
-            return max(category_scores, key=category_scores.get)
+            return max(category_scores, key=lambda k: category_scores[k])
 
         return 'general'
 
@@ -778,7 +822,8 @@ class UniversalOriginResolver:
         """
         Extract the primary claimant organization/person and any referenced district.
         """
-        lower_t = text.lower()
+        safe_text = text or ""
+        lower_t = safe_text.lower()
 
         # 1. Check for Indian District Name ONLY if text context relates to district administration
         # (e.g. collector, rain holiday, school holiday, section 144, curfew, flood alert)
@@ -790,7 +835,7 @@ class UniversalOriginResolver:
         )
         is_district_admin_matter = any(re.search(r'\b' + re.escape(c) + r'\b', lower_t) for c in district_admin_cues)
 
-        detected_district = None
+        detected_district: Optional[str] = None
         if is_district_admin_matter:
             for dist in INDIAN_DISTRICTS:
                 if re.search(r'\b' + re.escape(dist) + r'\b', lower_t):
@@ -798,7 +843,7 @@ class UniversalOriginResolver:
                     break
 
         # 2. Extract Claimant (Who announced, declared, ordered, issued, or inaugurated this?)
-        detected_claimant = None
+        detected_claimant: Optional[str] = None
 
         speech_pattern = (
             r'([A-Z][A-Za-z0-9\s\.\-]{2,40}?)\s+'
@@ -806,7 +851,7 @@ class UniversalOriginResolver:
             r'launched|warned|confirmed|stated|reported|shared|'
             r'inaugurated?|inaugurates?|opened?|unveiled?|flags?\s+off|flagged\s+off|dedicated|commissioned)'
         )
-        speech_match = re.search(speech_pattern, text)
+        speech_match = re.search(speech_pattern, safe_text)
         if speech_match:
             candidate = speech_match.group(1).strip()
             if candidate.lower() not in ('today', 'yesterday', 'breaking news', 'reports', 'sources', 'news'):
@@ -822,6 +867,8 @@ class UniversalOriginResolver:
         )
         if not detected_claimant and entities:
             for ent in entities:
+                if not ent:
+                    continue
                 ent_clean = ent.strip()
                 ent_lower = ent_clean.lower()
                 if any(marker in ent_lower for marker in institutional_markers):
@@ -833,10 +880,10 @@ class UniversalOriginResolver:
     @classmethod
     def resolve_primary_origins(
         cls,
-        text: str,
+        text: Optional[str],
         entities: Optional[List[str]] = None,
-        ocr_data: Optional[Dict] = None
-    ) -> List[Dict]:
+        ocr_data: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
         """
         Multi-Source Primary Entity Detection across ALL sectors.
         Identifies all potential original sources (e.g. production houses, producers,
@@ -862,8 +909,8 @@ class UniversalOriginResolver:
 
         lower_t = combined_text.lower()
         category = cls.infer_category(combined_text, entities)
-        primary_origins = []
-        seen_names = set()
+        primary_origins: List[Dict[str, Any]] = []
+        seen_names: Set[str] = set()
 
         # ---------------------------------------------------------------------
         # 1. Check Known Sector Entities Registry (All Sectors)
@@ -881,20 +928,22 @@ class UniversalOriginResolver:
                     abbr_match = re.search(r'\(([A-Za-z0-9]+)\)', info['name'])
                     if abbr_match:
                         seen_names.add(abbr_match.group(1).lower())
+                    handles = list(info.get('official_handles', []))
+                    domains = list(info.get('official_domains', []))
                     queries = cls._build_entity_queries(
                         info['name'],
-                        info.get('official_handles', []),
+                        handles,
                         combined_text,
-                        domains=info.get('official_domains', [])
+                        domains=domains
                     )
                     primary_origins.append({
                         'key': key,
                         'name': info['name'],
                         'role': info.get('role', 'Primary Authority'),
                         'category': info.get('category', category),
-                        'official_handles': info.get('official_handles', []),
-                        'official_domains': info.get('official_domains', []),
-                        'associated_figures': info.get('associated_figures', []),
+                        'official_handles': handles,
+                        'official_domains': domains,
+                        'associated_figures': list(info.get('associated_figures', [])),
                         'search_queries': queries
                     })
 
@@ -908,10 +957,17 @@ class UniversalOriginResolver:
                 if prod_house and prod_house not in seen_names:
                     seen_names.add(prod_house)
                     p_key = prod_house.lower()
-                    p_reg = KNOWN_SECTOR_ENTITIES.get(p_key, {})
-                    handles = p_reg.get('official_handles', m_info.get('associated_handles', []))
-                    domains = p_reg.get('official_domains', [])
+                    p_reg = KNOWN_SECTOR_ENTITIES.get(p_key)
+                    handles = (
+                        list(p_reg['official_handles'])
+                        if p_reg
+                        else list(m_info.get('associated_handles', []))
+                    )
+                    domains = list(p_reg['official_domains']) if p_reg else []
                     queries = cls._build_entity_queries(prod_house, handles, combined_text, movie_title=m_title, domains=domains)
+                    associated_figures = [
+                        fig for fig in (m_info.get('producer'), m_info.get('lead_actor')) if fig
+                    ]
                     primary_origins.append({
                         'key': p_key,
                         'name': prod_house,
@@ -919,14 +975,17 @@ class UniversalOriginResolver:
                         'category': 'cinema_entertainment',
                         'official_handles': handles,
                         'official_domains': domains,
-                        'associated_figures': [m_info.get('producer'), m_info.get('lead_actor')],
+                        'associated_figures': associated_figures,
                         'search_queries': queries
                     })
 
                 producer = m_info.get('producer')
                 if producer and producer not in seen_names:
                     seen_names.add(producer)
-                    pr_handle = [h for h in m_info.get('associated_handles', []) if 'prabhu' in h or 'lalit' in h]
+                    pr_handle = [
+                        h for h in m_info.get('associated_handles', [])
+                        if 'prabhu' in h.lower() or 'lalit' in h.lower()
+                    ]
                     queries = cls._build_entity_queries(producer, pr_handle, combined_text, movie_title=m_title)
                     primary_origins.append({
                         'key': producer.lower(),
@@ -1056,7 +1115,7 @@ class UniversalOriginResolver:
         }
 
         # Exclude short agency acronyms or short entity names from duplicate prefixing
-        exclude_tokens = set()
+        exclude_tokens: Set[str] = set()
         if exclude_text:
             abbr = re.search(r'\(([A-Za-z0-9]{2,12})\)', exclude_text)
             if abbr:
@@ -1071,8 +1130,8 @@ class UniversalOriginResolver:
                 exclude_tokens.update(w for w in base_words if len(w) <= 5 and w not in ('space', 'india', 'earth', 'health', 'bank'))
 
         tokens = re.findall(r"[A-Za-z0-9\u0B80-\u0BFF]+(?:-[A-Za-z0-9]+)*", context_text)
-        candidates = []
-        seen_low = set()
+        candidates: List[Tuple[int, int, str]] = []
+        seen_low: Set[str] = set()
         for idx, tok in enumerate(tokens):
             low = tok.lower()
             if len(low) <= 1 and not tok.isdigit():
@@ -1091,7 +1150,7 @@ class UniversalOriginResolver:
             return ""
 
         # Reserve slots for identifiers and key proper nouns so end-of-sentence codes (K2-18b) stay in
-        selected = []
+        selected: List[Tuple[int, int, str]] = []
         id_cands = [c for c in candidates if c[0] == 0]
         prop_cands = [c for c in candidates if c[0] == 1]
         other_cands = [c for c in candidates if c[0] == 2]
@@ -1123,7 +1182,7 @@ class UniversalOriginResolver:
         domains: Optional[List[str]] = None
     ) -> List[str]:
         """Generate high-priority topic-anchored queries targeted at official entity domains or channels."""
-        queries = []
+        queries: List[str] = []
 
         # Check if context concerns a public speech, press meet, rally, interview, or inauguration/event
         is_event = bool(re.search(
@@ -1224,7 +1283,7 @@ class UniversalOriginResolver:
         words = clean_claim.split()
         core_snippet = cls._extract_topic_terms(claim_text, limit=6) or " ".join(words[:10])
 
-        queries = []
+        queries: List[str] = []
 
         # 1. Check Primary Origins first
         primary_origins = cls.resolve_primary_origins(claim_text, entities=entities)
@@ -1298,7 +1357,7 @@ def _host_matches_domain(hostname: str, domain: str) -> bool:
 def get_domain_authority_score(
     url: Optional[str],
     source_type: str = "web_search",
-    primary_entities: Optional[List[Dict]] = None
+    primary_entities: Optional[List[Dict[str, Any]]] = None
 ) -> float:
     """
     Algorithmic Domain Credibility Scorer:
@@ -1341,7 +1400,7 @@ def get_domain_authority_score(
     if primary_entities:
         for pe in primary_entities:
             # Check official domains (exact host/subdomain, or host+path for social channels)
-            for d in pe.get('official_domains', []):
+            for d in (pe.get('official_domains') or []):
                 if not d:
                     continue
                 d_low = d.lower().strip()
@@ -1359,7 +1418,7 @@ def get_domain_authority_score(
 
             # Check official social media handles ONLY on verified social hosts (exact 1st path segment)
             if is_social_host and first_seg:
-                for h in pe.get('official_handles', []):
+                for h in (pe.get('official_handles') or []):
                     h_clean = h.lstrip('@').lower().strip()
                     if h_clean and first_seg == h_clean:
                         return 0.99
@@ -1468,10 +1527,10 @@ def get_domain_authority_score(
 
 
 def detect_authorities(
-    text: str,
+    text: Optional[str],
     entities: Optional[List[str]] = None,
-    ocr_data: Optional[Dict] = None
-) -> List[Dict]:
+    ocr_data: Optional[Dict[str, Any]] = None
+) -> List[Dict[str, Any]]:
     """
     Dynamic authority and multi-source primary origin detection for any claim across ALL sectors.
     Returns matched primary origin entities, categories, roles, and official channels.
@@ -1485,15 +1544,19 @@ def detect_authorities(
     if entities:
         combined_text += " ".join(entities)
     lower_t = combined_text.lower()
+    query_hint = (text or combined_text).strip()[:35]
 
-    matched = []
-    matched_keys = set()
+    matched: List[Dict[str, Any]] = []
+    matched_keys: Set[str] = set()
 
     # 1. Authority Registry checks (Maintains backward compatibility for sector test keys)
     for reg_key, reg_info in AUTHORITY_REGISTRY.items():
         if any(re.search(r'\b' + re.escape(kw) + r'\b', lower_t) for kw in reg_info.get('keywords', [])):
             primary_doms = list(reg_info.get('primary_domains', []))
             off_doms = list(reg_info.get('official_domains', primary_doms))
+            reg_queries = [f'"{reg_info["name"]}" official statement OR circular']
+            if primary_doms:
+                reg_queries.append(f'site:{primary_doms[0]} {query_hint}')
             matched.append({
                 'key': reg_key,
                 'name': reg_info['name'],
@@ -1505,10 +1568,7 @@ def detect_authorities(
                 'trusted_media': list(reg_info.get('trusted_media', [])),
                 'factcheck_domains': list(reg_info.get('factcheck_domains', [])),
                 'associated_figures': [],
-                'search_queries': [
-                    f'"{reg_info["name"]}" official statement OR circular',
-                    f'site:{primary_doms[0]} {text[:35]}' if primary_doms else ""
-                ]
+                'search_queries': reg_queries
             })
             matched_keys.add(reg_key)
 
@@ -1517,25 +1577,33 @@ def detect_authorities(
     for uo in universal_origins:
         # Guarantee primary_domains key is present
         if 'primary_domains' not in uo:
-            uo['primary_domains'] = list(uo.get('official_domains', []))
-            for h in uo.get('official_handles', []):
+            p_doms: List[str] = list(uo.get('official_domains') or [])
+            for h in (uo.get('official_handles') or []):
                 clean_h = h.lstrip('@')
-                uo['primary_domains'].append(f"x.com/{clean_h}")
+                p_doms.append(f"x.com/{clean_h}")
+            uo['primary_domains'] = p_doms
 
         # If not already matched by authority registry, append
-        if uo.get('key') not in matched_keys and not any(m['name'].lower() == uo.get('name', '').lower() for m in matched):
+        uo_key = uo.get('key')
+        uo_name = str(uo.get('name', '')).lower()
+        if uo_key not in matched_keys and not any(str(m.get('name', '')).lower() == uo_name for m in matched):
             matched.append(uo)
-            matched_keys.add(uo.get('key'))
+            if uo_key:
+                matched_keys.add(str(uo_key))
 
     return matched
 
 
-def generate_authority_queries(claim_text: str, matched_authorities: List[Dict], max_queries: int = 4) -> List[str]:
+def generate_authority_queries(
+    claim_text: str,
+    matched_authorities: Optional[List[Dict[str, Any]]],
+    max_queries: int = 4
+) -> List[str]:
     """Universal query generator utilizing matched authorities and the UniversalOriginResolver."""
     if not claim_text or not claim_text.strip():
         return []
 
-    queries = []
+    queries: List[str] = []
     clean_claim = re.sub(r'[^\w\s\-\u0B80-\u0BFF]', ' ', claim_text).strip()
     words = clean_claim.split()
     core_snippet = UniversalOriginResolver._extract_topic_terms(claim_text, limit=6) or " ".join(words[:8])
@@ -1543,19 +1611,24 @@ def generate_authority_queries(claim_text: str, matched_authorities: List[Dict],
     if matched_authorities:
         for auth in matched_authorities:
             # Query official/primary domains
-            domains = auth.get('primary_domains', auth.get('official_domains', []))
-            for d in domains:
+            domains = auth['primary_domains'] if 'primary_domains' in auth else auth.get('official_domains', [])
+            for d in (domains or []):
+                if not d:
+                    continue
                 if 'x.com/' in d or 'twitter.com/' in d:
                     queries.append(f'{core_snippet} site:{d}')
-                elif d and not d.startswith('@'):
+                elif not d.startswith('@'):
                     queries.append(f'{core_snippet} site:{d}')
             # Query official handles
-            for h in auth.get('official_handles', []):
+            for h in (auth.get('official_handles') or []):
+                if not h:
+                    continue
                 clean_h = h.lstrip('@')
                 queries.append(f'site:x.com/{clean_h} {core_snippet}')
             # Query trusted media if available
-            for tm in auth.get('trusted_media', [])[:1]:
-                queries.append(f'{core_snippet} site:{tm}')
+            for tm in (auth.get('trusted_media') or [])[:1]:
+                if tm:
+                    queries.append(f'{core_snippet} site:{tm}')
 
     # Also pull from universal resolver
     u_queries = UniversalOriginResolver.generate_universal_queries(claim_text, max_queries=max_queries)
