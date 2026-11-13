@@ -1,0 +1,30 @@
+# render.yaml — Render Blueprint for CREDENCEX
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: credencex
+    runtime: docker
+    plan: standard        # 2 GB RAM minimum — ML models need memory
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: PORT
+        value: "10000"
+      - key: HF_HOME
+        value: /opt/render/.cache/huggingface
+      - key: TRANSFORMERS_CACHE
+        value: /opt/render/.cache/huggingface
+      - key: SPACY_DATA
+        value: /opt/render/.cache/spacy
+      - key: GOOGLE_API_KEY
+        sync: false        # set manually in Render dashboard
+      - key: GOOGLE_SEARCH_ENGINE_ID
+        sync: false
+    healthCheckPath: /api/v1/health
+    disk:
+      name: model-cache
+      mountPath: /opt/render/.cache
+      sizeGB: 10           # HuggingFace models + spaCy + EasyOCR

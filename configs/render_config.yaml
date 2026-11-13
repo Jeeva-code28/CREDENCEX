@@ -1,0 +1,49 @@
+# Model and Pipeline Configuration — Render / Cloud Deployment
+# Uses en_core_web_sm (12 MB) instead of en_core_web_trf (500 MB) for memory efficiency.
+
+claim_extraction:
+  ner_model: "en_core_web_sm"
+  temporal_parser: "dateparser"
+
+evidence_retrieval:
+  semantic_model: "sentence-transformers/all-mpnet-base-v2"
+  top_k: 10
+  sources:
+    - google_factcheck
+    - duckduckgo_factcheck
+    - snopes
+    - factcheck
+    - politifact
+    - web_search
+
+evidence_ranking:
+  weights:
+    semantic: 0.5
+    reliability: 0.3
+    temporal: 0.2
+
+nli_model:
+  model_name: "cross-encoder/nli-deberta-v3-base"
+  batch_size: 16
+
+image_auth:
+  cnn_model: "resnet50"
+  checkpoint_path: "models/image_classifiers/resnet50_manipulation.pth"
+  ela_threshold: 0.7
+  authenticity_threshold: 0.6
+
+image_context:
+  clip_model: "openai/clip-vit-base-patch32"
+  text_encoder: "sentence-transformers/all-mpnet-base-v2"
+
+fusion:
+  thresholds:
+    supported: 0.70
+    contradicted: 0.70
+    unverified: 0.50
+
+performance:
+  retrieval_workers: 5
+  request_timeout: 4.0
+  nli_max_length: 256
+  cache_enabled: true

@@ -1,0 +1,25 @@
+# .dockerignore — Keep the Docker image lean
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.git/
+.gitignore
+.vscode/
+scratch/
+data/
+extracted_media/
+models/
+*.egg-info/
+dist/
+build/
+*.md
+!README.md
+pyrightconfig.json
+pytest.ini
+scratch_*.py
+add_citations.py
+References.bib
+verification_result.json
