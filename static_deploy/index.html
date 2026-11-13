@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CREDENCEX | AI Trust Intelligence &amp; Multimodal News Verification</title>
+  <meta name="description"
+    content="CREDENCEX — AI Trust Intelligence. Trust the evidence. Verify the truth. Multimodal AI-powered news verification with DeBERTa cross-encoder NLI, real-time fact-check retrieval, and neural image forensics.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-1" aria-hidden="true"></div>
+  <div class="ambient-glow glow-2" aria-hidden="true"></div>
+
+  <!-- Main Navigation Header -->
+  <header class="app-header" id="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+        </div>
+        <div class="brand-info">
+          <div class="brand-title">CREDENCEX</div>
+          <div class="brand-subtitle">Multimodal AI-Powered News Verification</div>
+        </div>
+        <span class="badge-tag">v1.0 Pro</span>
+      </div>
+
+      <div class="header-status" id="header-status">
+        <div class="status-indicator">
+          <span class="status-pulse" id="status-pulse"></span>
+          <span class="status-text" id="status-text">Checking Core Engine...</span>
+        </div>
+      </div>
+
+      <nav class="header-actions">
+        <button type="button" class="btn-ghost" id="nav-sources-btn"
+          title="View Verified Media & Accredited Sources Index">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+          <span>Verified Sources</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Intro Section -->
+  <main class="main-content" id="main-content">
+    <section class="hero-section" id="hero-section">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        AI TRUST INTELLIGENCE
+      </div>
+      <h1 class="hero-title">CREDENCEX</h1>
+      <p class="hero-tagline">Trust the evidence. Verify the truth.</p>
+      <div class="hero-divider" aria-hidden="true"></div>
+      <p class="hero-subtitle-lead">Multimodal AI-Powered News Verification</p>
+      <p class="hero-etymology">CREDENCE = Trust / Believability &middot; X = Advanced Intelligence</p>
+    </section>
+
+    <!-- Verification Card Panel -->
+    <section class="card verification-card" id="verification-panel">
+      <!-- Tab Control Bar -->
+      <div class="tab-bar" role="tablist" id="tab-controls">
+        <button type="button" class="tab-btn active" role="tab" id="tab-btn-text" aria-selected="true"
+          aria-controls="panel-text">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span>Claim &amp; Press Speech</span>
+        </button>
+        <button type="button" class="tab-btn" role="tab" id="tab-btn-image" aria-selected="false"
+          aria-controls="panel-image">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+          <span>Multimodal &amp; Media Forensics</span>
+        </button>
+      </div>
+
+      <!-- Tab 1: Text Verification -->
+      <div class="tab-panel active" id="panel-text" role="tabpanel" aria-labelledby="tab-btn-text">
+        <div class="form-group">
+          <label for="claim-input" class="form-label">
+            <span>Enter News Claim, Headline, or Excerpt to Verify</span>
+            <span class="char-count" id="claim-char-count">0 / 2000</span>
+          </label>
+          <div class="textarea-wrapper">
+            <textarea id="claim-input" class="form-textarea" rows="4" maxlength="2000"
+              placeholder="Paste a headline, social media post, or controversial statement (e.g. 'WHO announces mandatory digital health passports worldwide in 2026')..."></textarea>
+            <button type="button" class="btn-clear-input" id="btn-clear-text" title="Clear input"
+              aria-label="Clear input">
+              &times;
+            </button>
+          </div>
+        </div>
+
+        <!-- Pre-populated Quick Try Chips -->
+        <div class="quick-examples" id="quick-examples-container">
+          <span class="quick-examples-title">Quick Test Examples:</span>
+          <div class="chips-container" id="example-chips">
+            <button type="button" class="example-chip"
+              data-claim="The Earth is flat and NASA has been covering up the truth about the planetary curve.">
+              &ldquo;The Earth is flat&rdquo;
+            </button>
+            <button type="button" class="example-chip"
+              data-claim="Bill Gates patented an implantable microchip sensor numbered 060606 for COVID vaccines.">
+              &ldquo;Bill Gates patent 060606 microchip&rdquo;
+            </button>
+            <button type="button" class="example-chip"
+              data-claim="COVID-19 vaccines cause magnetic skin at the injection site due to heavy metal microchips.">
+              &ldquo;COVID vaccines cause magnetic skin&rdquo;
+            </button>
+            <button type="button" class="example-chip"
+              data-claim="NASA James Webb Space Telescope detected water vapor and carbon dioxide on exoplanet K2-18b.">
+              &ldquo;James Webb detects water on K2-18b&rdquo;
+            </button>
+          </div>
+        </div>
+
+        <!-- Advanced Controls Row -->
+        <div class="controls-row">
+          <div class="control-item slider-group">
+            <label for="max-sources-input" class="control-label">
+              <span>Evidence Sources:</span>
+              <strong id="max-sources-val">5</strong>
+            </label>
+            <input type="range" id="max-sources-input" min="3" max="10" value="5" step="1" class="custom-range">
+          </div>
+
+          <div class="control-item toggle-group">
+            <label class="toggle-switch" for="bypass-cache-checkbox">
+              <input type="checkbox" id="bypass-cache-checkbox">
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Bypass Cache (Force Fresh Retrieval)</span>
+            </label>
+          </div>
+
+          <div class="control-item action-group">
+            <button type="button" class="btn-primary" id="btn-verify-text">
+              <span class="btn-spinner" id="verify-spinner-text" aria-hidden="true"></span>
+              <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <span>Verify Claim Now</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Multimodal & Image Forensics -->
+      <div class="tab-panel" id="panel-image" role="tabpanel" aria-labelledby="tab-btn-image" hidden>
+        <div class="image-upload-section">
+          <div class="dropzone" id="image-dropzone" tabindex="0" role="button"
+            aria-label="Upload news image for verification">
+            <input type="file" id="image-file-input" accept="image/jpeg,image/png,image/webp,image/jpg"
+              class="file-input-hidden">
+            <div class="dropzone-prompt" id="dropzone-prompt">
+              <div class="dropzone-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+              </div>
+              <div class="dropzone-text">
+                <strong>Click to browse</strong> or drag & drop news image here
+              </div>
+              <div class="dropzone-subtext">JPEG, PNG, WebP up to 10MB</div>
+            </div>
+
+            <!-- Preview box -->
+            <div class="image-preview-wrapper" id="image-preview-wrapper" hidden>
+              <img id="image-preview" src="" alt="Claim image preview" class="image-preview">
+              <div class="image-preview-meta">
+                <span id="preview-filename" class="preview-filename">image.jpg</span>
+                <span id="preview-filesize" class="preview-filesize">0 KB</span>
+                <button type="button" class="btn-remove-image" id="btn-remove-image"
+                  title="Remove image">&times;</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group image-claim-group">
+            <label for="image-claim-input" class="form-label">
+              <span>Accompanying Caption or Headline (Cross-Modal Context)</span>
+              <span class="badge-optional">Recommended</span>
+            </label>
+            <input type="text" id="image-claim-input" class="form-input"
+              placeholder="e.g. 'Photo shows recent volcanic eruption cloud over the Pacific ocean'...">
+          </div>
+
+          <div class="controls-row">
+            <div class="control-item slider-group">
+              <label for="max-sources-image-input" class="control-label">
+                <span>Evidence Sources:</span>
+                <strong id="max-sources-image-val">5</strong>
+              </label>
+              <input type="range" id="max-sources-image-input" min="3" max="10" value="5" step="1" class="custom-range">
+            </div>
+
+            <div class="control-item action-group">
+              <button type="button" class="btn-primary" id="btn-verify-image">
+                <span class="btn-spinner" id="verify-spinner-image" aria-hidden="true"></span>
+                <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+                <span>Run Forensic Verification</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-time Multi-Stage Progress Stepper -->
+    <section class="card progress-stepper-card" id="progress-stepper" hidden>
+      <div class="stepper-header">
+        <div class="stepper-title-group">
+          <div class="spinner-ring"></div>
+          <div>
+            <h2 class="stepper-title">Verifying Claim Pipeline...</h2>
+            <div class="stepper-subtitle" id="stepper-status-msg">Running deep neural inference and live fact retrieval
+            </div>
+          </div>
+        </div>
+        <div class="stepper-timer" id="stepper-timer">0.0s</div>
+      </div>
+
+      <div class="stepper-steps">
+        <div class="step-item active" id="step-1">
+          <div class="step-number">1</div>
+          <div class="step-label">Claim Analysis</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-item" id="step-2">
+          <div class="step-number">2</div>
+          <div class="step-label">Evidence Retrieval</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-item" id="step-3">
+          <div class="step-number">3</div>
+          <div class="step-label">Neural Cross-Examination</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-item" id="step-4">
+          <div class="step-number">4</div>
+          <div class="step-label">Truth Synthesis</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Verification Results Showcase -->
+    <section class="results-section" id="results-section" hidden>
+      <!-- Main Verdict Hero Banner -->
+      <div class="card verdict-card" id="verdict-card">
+        <div class="verdict-grid">
+          <!-- Left: Verdict & Radial Meter -->
+          <div class="verdict-primary">
+            <div class="verdict-tag-wrapper">
+              <span class="verdict-pill" id="verdict-pill">
+                <span class="verdict-pill-icon" id="verdict-icon"></span>
+                <span class="verdict-pill-text" id="verdict-text">ANALYZING</span>
+              </span>
+              <span class="cache-indicator-badge" id="verdict-cache-badge" hidden>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+                Cached (<span id="cache-latency">0.00s</span>)
+              </span>
+            </div>
+
+            <div class="gauge-container">
+              <div class="radial-gauge" id="radial-gauge">
+                <svg class="gauge-svg" viewBox="0 0 120 120">
+                  <circle class="gauge-bg" cx="60" cy="60" r="50" />
+                  <circle class="gauge-fill" id="gauge-fill" cx="60" cy="60" r="50" stroke-dasharray="314.159"
+                    stroke-dashoffset="314.159" />
+                </svg>
+                <div class="gauge-text">
+                  <span class="gauge-value" id="gauge-value">0%</span>
+                  <span class="gauge-label">Confidence</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Summary, Truth Audit & Key Metrics -->
+          <div class="verdict-details">
+            <div class="claim-quote-box">
+              <div class="quote-label" id="quote-label">Evaluated Statement</div>
+              <blockquote class="quote-text" id="result-claim-text">&ldquo;...&rdquo;</blockquote>
+              <div id="ocr-badge-wrap" style="display:none; margin-top: 8px; flex-wrap: wrap; gap: 6px;"></div>
+              <div id="authorities-badge-wrap" style="display:none; margin-top: 8px; flex-wrap: wrap; gap: 6px;"></div>
+              <div id="primary-origins-wrap"
+                style="display:none; margin-top: 10px; padding: 10px 12px; background: rgba(124, 155, 255, 0.08); border: 1px solid rgba(124, 155, 255, 0.24); border-radius: 8px;">
+                <div
+                  style="display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:700; color:#93B4FF; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  <span>Primary Official Sources Investigated</span>
+                </div>
+                <div id="primary-origins-content" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+              </div>
+            </div>
+
+            <!-- Truth Audit & Reality Breakdown Section -->
+            <div class="truth-section-box" id="truth-section-box"
+              style="display:none; width:100%; margin-top:0.85rem; margin-bottom:1.25rem; background:rgba(15, 23, 42, 0.90); border:1px solid rgba(124, 155, 255, 0.22); border-radius:14px; padding:1.25rem;">
+              <div class="truth-header">
+                <div class="truth-title-wrap">
+                  <div class="truth-icon-badge" id="truth-icon-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      <path d="m9 12 2 2 4-4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="truth-heading">Truth Audit &amp; Reality Breakdown</div>
+                    <div class="truth-subheading" id="truth-verdict-meaning">Verifying statement against ground truth
+                      reality</div>
+                  </div>
+                </div>
+                <span class="truth-status-badge badge-rumor" id="truth-status-badge">
+                  <span class="pulse-dot"></span>
+                  <span id="truth-badge-text">CIRCULATING RUMOR — NOT ACTUAL TRUTH</span>
+                </span>
+              </div>
+
+              <div class="truth-matrix-grid">
+                <!-- Rumor / Circulating Assertion Card -->
+                <div class="truth-column-card truth-rumor-col" id="truth-rumor-col">
+                  <div class="truth-col-header">
+                    <span class="truth-col-tag tag-rumor" id="truth-col-rumor-tag">⚠️ Circulating Rumor</span>
+                    <span class="truth-col-meta">Analyzed Claim</span>
+                  </div>
+                  <div class="truth-claim-quote" id="truth-rumor-text">&ldquo;...&rdquo;</div>
+                  <div class="truth-advisory-banner banner-rumor" id="truth-rumor-banner">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <span id="truth-rumor-banner-text">This is a rumor and NOT actual truth based on official
+                      data.</span>
+                  </div>
+                </div>
+
+                <!-- Ground Truth / Actual Reality Card -->
+                <div class="truth-column-card truth-fact-col" id="truth-fact-col">
+                  <div class="truth-col-header">
+                    <span class="truth-col-tag tag-fact" id="truth-col-fact-tag">🛡️ Verified Ground Truth</span>
+                    <span class="truth-col-meta">Official Reality</span>
+                  </div>
+                  <div class="truth-fact-content" id="truth-fact-text">
+                    Authoritative data directly refutes the claim.
+                  </div>
+                  <div class="truth-advisory-banner banner-fact" id="truth-fact-banner">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span id="truth-fact-banner-text">Verified Ground Truth based on official circulars and accredited
+                      reporting.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Evidentiary Foundation Footer -->
+              <div class="truth-evidence-foundation" id="truth-evidence-foundation">
+                <div class="truth-foundation-label">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                  </svg>
+                  <span>Evidence &amp; Authority Basis:</span>
+                </div>
+                <div class="truth-foundation-text" id="truth-foundation-text">Refuted by official records and verified
+                  fact-checking data.</div>
+              </div>
+            </div>
+
+            <div class="summary-box">
+              <div class="summary-label">Automated Synthesis</div>
+              <p class="summary-text" id="verdict-explanation">Evaluating contextual corroboration across authoritative
+                news sources and neural cross-encoders...</p>
+            </div>
+
+            <div class="metrics-row">
+              <div class="metric-chip">
+                <span class="metric-label">Execution Time</span>
+                <span class="metric-value" id="meta-execution-time">0.00s</span>
+              </div>
+              <div class="metric-chip">
+                <span class="metric-label">Retrieved Evidence</span>
+                <span class="metric-value" id="meta-evidence-count">0 items</span>
+              </div>
+              <div class="metric-chip">
+                <span class="metric-label">Dominant Stance</span>
+                <span class="metric-value" id="meta-dominant-stance">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deep Dive Grid: Probabilities, Entities, Forensics -->
+      <div class="analytics-grid">
+        <!-- Card 1: NLI Stance Breakdown -->
+        <div class="card analytics-card" id="card-nli">
+          <div class="analytics-card-header">
+            <div class="card-header-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20V10" />
+                <path d="M18 20V4" />
+                <path d="M6 20v-4" />
+              </svg>
+              <span>NLI Stance Probabilities</span>
+            </div>
+            <span class="model-badge">Neural Semantic Engine</span>
+          </div>
+          <div class="prob-bars-container">
+            <div class="prob-bar-group">
+              <div class="prob-bar-label">
+                <span class="stance-indicator stance-entailment"></span>
+                <span>Entailment (Supports)</span>
+                <strong id="val-entailment">0%</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill bar-fill-entailment" id="bar-entailment" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="prob-bar-group">
+              <div class="prob-bar-label">
+                <span class="stance-indicator stance-contradiction"></span>
+                <span>Contradiction (Refutes)</span>
+                <strong id="val-contradiction">0%</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill bar-fill-contradiction" id="bar-contradiction" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="prob-bar-group">
+              <div class="prob-bar-label">
+                <span class="stance-indicator stance-neutral"></span>
+                <span>Neutral (Unrelated / Unverified)</span>
+                <strong id="val-neutral">0%</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill bar-fill-neutral" id="bar-neutral" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Extracted Named Entities -->
+        <div class="card analytics-card" id="card-entities">
+          <div class="analytics-card-header">
+            <div class="card-header-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="7" r="4" />
+                <path d="M6 21v-2a6 6 0 0 1 12 0v2" />
+              </svg>
+              <span>Extracted Named Entities</span>
+            </div>
+            <span class="model-badge">Named Entity Extraction</span>
+          </div>
+          <div class="entities-container" id="entities-container">
+            <div class="no-entities-msg" id="no-entities-msg">No prominent entities extracted.</div>
+            <div class="entity-pills-wrap" id="entity-pills-wrap"></div>
+          </div>
+        </div>
+
+        <!-- Card 3: Image Forensics (Displayed if multimodal) -->
+        <div class="card analytics-card" id="card-forensics" hidden style="display: none;">
+          <div class="analytics-card-header">
+            <div class="card-header-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              <span>Forensic & Context Alignment</span>
+            </div>
+            <span class="model-badge">Spectral Forensics & Vision</span>
+          </div>
+          <div class="forensics-body">
+            <div class="prob-bar-group">
+              <div class="prob-bar-label">
+                <span>Image Authenticity Score</span>
+                <strong id="val-authenticity">0%</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill bar-fill-authenticity" id="bar-authenticity" style="width: 0%"></div>
+              </div>
+              <div class="forensic-sub">ELA Compression + Spectral FFT Frequency Analysis</div>
+            </div>
+
+            <div class="prob-bar-group" id="group-clip-alignment">
+              <div class="prob-bar-label">
+                <span>Text-Image Context Alignment</span>
+                <strong id="val-clip">0%</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill bar-fill-clip" id="bar-clip" style="width: 0%"></div>
+              </div>
+              <div class="forensic-sub" id="clip-status-sub">Zero-shot cross-modal consistency</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evidence Explorer Section -->
+      <div class="card evidence-card" id="evidence-section">
+        <div class="evidence-header">
+          <div class="evidence-title-group">
+            <div class="card-header-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
+              <span>Retrieved Corroborating Evidence</span>
+            </div>
+            <span class="evidence-count-badge" id="evidence-count-badge">0 Sources</span>
+          </div>
+
+          <div class="evidence-filters" id="evidence-filters">
+            <button type="button" class="filter-chip active" data-filter="all" id="filter-all">All</button>
+            <button type="button" class="filter-chip" data-filter="entailment"
+              id="filter-supporting">Supporting</button>
+            <button type="button" class="filter-chip" data-filter="contradiction" id="filter-refuting">Refuting</button>
+            <button type="button" class="filter-chip" data-filter="factcheck" id="filter-factcheck">Fact-Checkers
+              Only</button>
+          </div>
+        </div>
+
+        <div class="evidence-list" id="evidence-list">
+          <!-- Evidence cards injected here dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- Action Toolbar (Share / Export / New Verification) -->
+      <div class="results-toolbar" id="results-toolbar">
+        <button type="button" class="btn-secondary" id="btn-copy-summary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          <span id="copy-summary-text">Copy Debunk Summary</span>
+        </button>
+
+        <button type="button" class="btn-secondary" id="btn-download-json">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>Export Audit Report</span>
+        </button>
+
+        <button type="button" class="btn-secondary btn-new-search" id="btn-new-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span>Verify Another Claim</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sources Credibility Database Modal -->
+  <div class="modal-backdrop" id="modal-sources" hidden>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3 class="modal-title">Authoritative Source Credibility Database</h3>
+          <p class="modal-subtitle">Pre-calibrated credibility weights used in Bayesian multi-source evidence ranking
+          </p>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-close-sources-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="sources-table-wrapper">
+          <table class="sources-table" id="sources-table">
+            <thead>
+              <tr>
+                <th>Domain / Source</th>
+                <th>Category</th>
+                <th>Credibility Score</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="sources-table-body">
+              <!-- Dynamically populated from /api/v1/sources -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Client Script -->
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -13,6 +13,9 @@
 
 <br />
 
+[![Live Demo](https://img.shields.io/badge/%F0%9F%A4%97%20Live%20Demo-Hugging%20Face%20Spaces-FFD21E?style=flat-square&logo=huggingface&labelColor=0B1120)](https://huggingface.co/spaces/Jeeva-dev/CREDENCEX)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white&labelColor=0B1120)](Dockerfile)
+[![Render](https://img.shields.io/badge/Render-Blueprint-46E3B7?style=flat-square&logo=render&logoColor=white&labelColor=0B1120)](render.yaml)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-7C9BFF?style=flat-square&logo=python&logoColor=white&labelColor=0B1120)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-REST_API-7C9BFF?style=flat-square&logo=fastapi&logoColor=white&labelColor=0B1120)](https://fastapi.tiangolo.com/)
 [![DeBERTa-v3](https://img.shields.io/badge/NLI-DeBERTa--v3-7C9BFF?style=flat-square&logo=huggingface&logoColor=white&labelColor=0B1120)](https://huggingface.co/cross-encoder/nli-deberta-v3-base)
@@ -20,9 +23,11 @@
 [![EasyOCR](https://img.shields.io/badge/OCR-Tamil_%2B_English-7C9BFF?style=flat-square&labelColor=0B1120)](https://github.com/JaidedAI/EasyOCR)
 [![Pytest](https://img.shields.io/badge/Tests-Pytest-7C9BFF?style=flat-square&logo=pytest&logoColor=white&labelColor=0B1120)](pytest.ini)
 
+[Live Demo](https://huggingface.co/spaces/Jeeva-dev/CREDENCEX) &nbsp;&middot;&nbsp;
 [Overview](#overview) &nbsp;&middot;&nbsp;
 [Architecture](#architecture) &nbsp;&middot;&nbsp;
 [Quick Start](#quick-start) &nbsp;&middot;&nbsp;
+[Deployment](#deployment) &nbsp;&middot;&nbsp;
 [Usage](#usage) &nbsp;&middot;&nbsp;
 [Web Dashboard & API](#web-dashboard--rest-api) &nbsp;&middot;&nbsp;
 [Authority Scoring](#universal-origin--6-tier-authority-scoring) &nbsp;&middot;&nbsp;
@@ -142,6 +147,35 @@ set TRANSFORMERS_OFFLINE=1
 ```
 
 *(On Linux/macOS or PowerShell, use `export VAR=...` or `$env:VAR="..."` respectively.)*
+
+---
+
+## Deployment
+
+### 1. Live Interactive Demo (Hugging Face Spaces)
+
+Experience the live interactive CREDENCEX web dashboard with radial confidence meters, multi-source evidence extraction, and real-time truth audit matrix:
+
+👉 **[Launch Live Demo on Hugging Face Spaces](https://huggingface.co/spaces/Jeeva-dev/CREDENCEX)**
+
+### 2. Docker Container
+
+A multi-stage production [`Dockerfile`](Dockerfile) is provided for containerized deployment:
+
+```bash
+# Build the Docker image
+docker build -t credencex .
+
+# Run the container (maps port 8000)
+docker run -p 8000:8000 credencex
+```
+
+### 3. Cloud Deployment (Render Blueprint)
+
+CREDENCEX includes a declarative infrastructure Blueprint specification ([`render.yaml`](render.yaml)):
+- Connect your GitHub repository to [Render Blueprints](https://render.com/blueprints).
+- Automatic health monitoring on `/api/v1/health`.
+- Persistent disk mounting for caching Hugging Face transformer models.
 
 ---
 
